@@ -57,4 +57,4 @@ class OrderItem(models.Model):
     status=models.CharField(max_length=20, choices=allocation_choices, default='incomplete')
     customer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,)
     def __str__(self):
-    	return self.product_name
+    	return self.description
