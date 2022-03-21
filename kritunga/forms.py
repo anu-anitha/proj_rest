@@ -9,6 +9,11 @@ class ChefForm(ModelForm):
         model = Chef
         fields = '__all__'
 
+class OrderItemForm(ModelForm):
+    class Meta:
+        model = OrderItem
+        fields = '__all__'
+
 
 # class SignupForm(UserCreationForm):
 #     class Meta:
