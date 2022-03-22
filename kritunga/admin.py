@@ -4,6 +4,6 @@ from kritunga.models import *
 
 admin.site.register(Category)
 admin.site.register(Chef)
-admin.site.register(CustomUser)
+admin.site.register(Customer)
 admin.site.register(OrderItem)
 admin.site.register(Products)

@@ -40,6 +40,7 @@
         <td><a href="{% url 'order_read' i.id %}">Read</a></td>   <!-- /app/read/1 -->
         <td><a href="{% url 'order_update' i.id %}">update</a></td>   <!--  /app/update/1 -->
         <td><a href="{% url 'order_delete' i.id %}">delete</a></td> <!-- /app/read/1 -->
+        <td><a href="{% url 'order_completed' i.id %}">MARK_COMPLETE</a></td> <!-- /app/update order completed/1 -->
       </tr>
       {% endfor %}
 

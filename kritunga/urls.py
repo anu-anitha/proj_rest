@@ -17,4 +17,6 @@ urlpatterns += [
     path('order_update/<str:id>',views.order_update,name='order_update'),
     path('order_delete/<str:id>',views.order_delete,name='order_delete'),
     path('order_create/',views.order_create,name='order_create'),
+    path('order_completed/<str:id>',views.order_completed,name='order_completed'),
+    
 ]

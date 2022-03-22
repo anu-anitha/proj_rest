@@ -26,21 +26,20 @@ class Products(models.Model):
 class Chef(models.Model):
     chef_name=models.CharField(max_length=100,unique=True)
     chef_image=models.ImageField(default='media')
-    category_name=models.ManyToManyField(Category)
-    product_name=models.CharField(max_length=100)
+    category_name=models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,)
     orders_completed=models.IntegerField(default=0)
     description=models.TextField(null=True,blank=True)
     mobile=models.CharField(max_length=100)
-    status=models.BooleanField(default=True)
+    chef_availability=models.BooleanField(default=True)
     created_at=models.DateTimeField(auto_now_add=True)
     def __str__(self):
     	return self.chef_name
 
 
-class CustomUser(models.Model):
+class Customer(models.Model):
     username=models.CharField(max_length=100)
     email=models.EmailField()
-    password=models.CharField(max_length=30)
+    mobile=models.CharField(max_length=100)
     def __str__(self):
     	return self.username
 
@@ -55,6 +54,6 @@ class OrderItem(models.Model):
     table_no=models.IntegerField()
     prepared_by=models.ForeignKey(Chef, on_delete=models.SET_NULL, null=True, blank=True,)
     status=models.CharField(max_length=20, choices=allocation_choices, default='incomplete')
-    customer = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True,)
     def __str__(self):
     	return self.description
