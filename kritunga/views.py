@@ -57,23 +57,23 @@ def order_create(request):# When user clicks on create order this fuciton will t
 			if geting_prepared:# if you get the list of chefs who are working on the same category, then enter in to the loop.
 				chef_dict = {} #define an empty dict, this dict will have the {chef:orders_completed}
 				#breakpoint()
-				for i in geting_prepared:#iterate over the list of chefs.
+				for i in geting_prepared:#iterate over the list of chefs(Querysets).
 					chef_name_q = i.prepared_by #get the chef names who are preparing the incomplete orders.
 					#print('----------------------',chef_name_q)
 					get_chef = Chef.objects.filter(chef_name = chef_name_q).values_list('orders_completed', flat=True)#out of chefs who are preparing the incomplete orders, get their completed_orders number.
 					for i in get_chef:#get the filtered list of chefs orders that are completed
-						chef_dict[chef_name_q] = i #create a dict || dict['sravan'] = 2, dict['ravan'] = 3
+						chef_dict[chef_name_q] = i #create a dict || dict['sravan'] = 2, dict['ravan'] = 3, chef_dict[sushanth]:1
 				#print('DICT',chef_dict)
 				chef_final = min(chef_dict, key=chef_dict.get)#Get the chefs orders who had prepared the less orders in a day.#get the key where the value is minimum#https://www.codegrepper.com/code-examples/python/how+to+find+the+minimum+value+in+a+dictionary+python
-				get_chef = Chef.objects.filter(chef_name = chef_final)
+				get_chef = Chef.objects.get(chef_name = chef_final)
 				obj = form.save(commit=False)
 				obj.prepared_by = get_chef
 				obj.save()
 			else:#if the chef's are idle and not preparing any orders in line. all the existing orders are completed, if new order is comming up then assign the order to any available chef.
 				get_chef = Chef.objects.filter(chef_availability = 1).first()
-				obj = form.save(commit=False)
-				obj.prepared_by = get_chef
-				obj.save()
+				obj = form.save(commit=False)#instace: hold before you save.
+				obj.prepared_by = get_chef#before you save the customer order in database, assign a chef who is idle.
+				obj.save()#save to DB
 
 
 		return redirect('order_view')
@@ -103,6 +103,11 @@ def order_update(request, id):
 
 def order_completed(request, id):
 	OrderItem.objects.filter(pk=id).update(status = 'complete')
+	chef_who_compltd_order = OrderItem.objects.filter(pk=id).values_list('prepared_by', flat=True)
+	# orders_chef = Chef.objects.get(chef_name = chef_who_compltd_order)
+	# # orders_chef_obj = 
+	# total_orders = orders_chef+1
+	# Chef.objects.filter(chef_name = chef_who_compltd_order).update(orders_completed = total_orders )
 	messages.info(request,"Order completed")
 	return redirect('order_view')
 
