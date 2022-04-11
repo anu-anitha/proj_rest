@@ -11,13 +11,13 @@ allocation_choices = (
 class Category(models.Model):
     category_name=models.CharField(max_length=100)
     description=models.TextField(null=True,blank=True)
-    category_image=models.ImageField(default='media')
+    category_image=models.ImageField(upload_to='images/', null=True, blank=True)
     def __str__(self):
     	return self.category_name
 class Products(models.Model):
     product_name=models.CharField(max_length=100)
     description=models.TextField(null=True,blank=True)
-    product_image=models.ImageField(default='media')
+    product_image=models.ImageField(upload_to='images/', null=True, blank=True)
     product_price=models.DecimalField(max_digits=20,decimal_places=2)
     category=models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,)
     def __str__(self):
@@ -25,7 +25,7 @@ class Products(models.Model):
 
 class Chef(models.Model):
     chef_name=models.CharField(max_length=100,unique=True)
-    chef_image=models.ImageField(default='media')
+    chef_image=models.ImageField(upload_to='images/', null=True, blank=True)
     category_name=models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True,)
     orders_completed=models.IntegerField(default=0)
     description=models.TextField(null=True,blank=True)
