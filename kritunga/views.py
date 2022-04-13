@@ -117,3 +117,9 @@ def order_delete(request, id):
 	messages.info(request,"data deleted")
 	return render(request, 'order_delete.html')
 
+def chef_orders(request, id):
+	chefdata = Chef.objects.get(id=id)
+	dynamicdata = OrderItem.objects.filter(prepared_by=chefdata)
+	context = {'dynamic':dynamicdata}
+	return render(request, 'order_view.html', context)
+

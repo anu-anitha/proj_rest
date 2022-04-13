@@ -8,6 +8,7 @@ urlpatterns = [
     path('chef_update/<str:id>',views.chef_update,name='chef_update'),
     path('chef_delete/<str:id>',views.chef_delete,name='chef_delete'),
     path('chef_create/',views.chef_create,name='chef_create'),
+    path('chef_orders/<str:id>',views.chef_orders,name='chef_orders'),
 ]
 
 #order urls
