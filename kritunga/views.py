@@ -50,8 +50,8 @@ def order_create(request):# When user clicks on create order this fuciton will t
 	form = OrderItemForm()#first render empty form || return render(request, 'order_create.html', context) || this code will take the form variable from here and it will render the empty form
 	if request.method == 'POST': #when user clicks the submit button after filling the order details this line will get execute, if this IF condition stisfies we will enter in to the loop.
 		form = OrderItemForm(request.POST, request.FILES)#This line of code will get all the data and files that are added in the form by user.
+		get_category = request.POST.get('category_name')#Now the request is containing all the data that is entered by the user, out of that data we need only category. this line of code will bring what is the category that user selected.
 		if form.is_valid():#if the data entered in the form by user is a valid data, then enter in to the loop.
-			get_category = request.POST.get('category_name')#Now the request is containing all the data that is entered by the user, out of that data we need only category. this line of code will bring what is the category that user selected.
 			geting_prepared = OrderItem.objects.filter(status = 'incomplete', category_name = get_category)#From the existing orders we have to filter the orders which are incomplete and the category that user selected. this is being done just to get the chef's who are still working on the pirticular category, so that we can assign this order to the chef who is still preparing that category order.
 			#print('+++++++++++++',geting_prepared)
 			if geting_prepared:# if you get the list of chefs who are working on the same category, then enter in to the loop.
@@ -70,7 +70,7 @@ def order_create(request):# When user clicks on create order this fuciton will t
 				obj.prepared_by = get_chef
 				obj.save()
 			else:#if the chef's are idle and not preparing any orders in line. all the existing orders are completed, if new order is comming up then assign the order to any available chef.
-				get_chef = Chef.objects.filter(chef_availability = 1).first()
+				get_chef = Chef.objects.filter(chef_availability = 1, category_name = get_category).first()
 				obj = form.save(commit=False)#instace: hold before you save.
 				obj.prepared_by = get_chef#before you save the customer order in database, assign a chef who is idle.
 				obj.save()#save to DB

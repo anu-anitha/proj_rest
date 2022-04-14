@@ -8,8 +8,9 @@
 <div class="container">
   <div class="row">
     <div class="col">
+      <div class="card-deck" style="width: 35rem;">
 {% for i in dynamic %}
-<div class="card" style="width: 18rem;">
+<div class="card">
   <img class="card-img-top" src="{{i.chef_image.url}}" alt="Card image cap">
   <div class="card-body">
     <h5 class="card-title">{{i.chef_name}}</h5>
@@ -17,10 +18,13 @@
     <a href="{% url 'chef_orders' i.id %}" class="btn btn-primary">orders</a>
   </div>
 </div>
+
+
 {% endfor %}
 
     </div>
   </div>
+</div>
 </div>
 
 {% endblock content %}
