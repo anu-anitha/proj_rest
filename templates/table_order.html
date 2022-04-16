@@ -2,10 +2,22 @@
 {% load static %}
 
 
+
+
+
+
 {% block content %}
-<a href="{% url 'order_create' %}">CREATE ORDER</a>
-<h1>COMPLETED: {{orders_compl}}</h1>
-<h1>PENDING: {{orders_incompl}}</h1>
+
+
+<form class="add_your_class" method="POST" action="" >
+	{% csrf_token %}
+    <input class="add_your_class" type="search" name="search"> 
+    <button class="add_your_class" type="submit"> Search </button>
+</form>
+
+ <h2> completed : {{compl}} <br>
+  incompleted : {{incom}}</h2>
+
 <div class="container">
   <table class="table">
     <thead>
@@ -25,7 +37,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for i in dynamic %}     
+      {% for i in table %}     
       <tr class="danger">
         <td>{{i.id}}</td>
         <td>{{i.category_name}}</td>
@@ -52,3 +64,4 @@
 
 
 {% endblock content %}
+

@@ -9,6 +9,7 @@ urlpatterns = [
     path('chef_delete/<str:id>',views.chef_delete,name='chef_delete'),
     path('chef_create/',views.chef_create,name='chef_create'),
     path('chef_orders/<str:id>',views.chef_orders,name='chef_orders'),
+    path('chef_data',views.chef_data,name='chef_data'),
 ]
 
 #order urls
@@ -19,5 +20,6 @@ urlpatterns += [
     path('order_delete/<str:id>',views.order_delete,name='order_delete'),
     path('order_create/',views.order_create,name='order_create'),
     path('order_completed/<str:id>',views.order_completed,name='order_completed'),
+    path('table/', views.table_orders, name='table'),
     
 ]

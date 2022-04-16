@@ -41,7 +41,10 @@ def chef_delete(request, id):
 	messages.info(request,"data deleted")
 	return render(request, 'chef_delete.html')
 
-
+def chef_data(request):
+	dynamicdata = Chef.objects.all()
+	context = {'dynamic':dynamicdata}
+	return render(request, 'chef_data.html', context)
 
 
 
@@ -120,6 +123,23 @@ def order_delete(request, id):
 def chef_orders(request, id):
 	chefdata = Chef.objects.get(id=id)
 	dynamicdata = OrderItem.objects.filter(prepared_by=chefdata)
-	context = {'dynamic':dynamicdata}
+	orders_compl = OrderItem.objects.filter(status="complete").count()
+	orders_incompl = OrderItem.objects.filter(status="incomplete").count()
+	print(orders_compl)
+	context = {'dynamic':dynamicdata, 'orders_compl':orders_compl, 'orders_incompl':orders_incompl}
 	return render(request, 'order_view.html', context)
 
+
+def table_orders(request):
+	if request.method=='POST':
+		search= request.POST['search'] 
+		table = OrderItem.objects.filter(table_no= search)
+		#print(table)
+		# for i in table:
+		# 	print(i.product_name)
+		compl= OrderItem.objects.filter(status= 'complete', table_no = search).count()
+		incom= OrderItem.objects.filter(status= 'incomplete' ,table_no= search).count()
+
+
+		return render(request, 'table_order.html', context={'table': table, 'compl': compl, 'incom': incom})
+	return render(request, 'table_order.html')
