@@ -3,7 +3,7 @@
 
 
 {% block content %}
-<a href="{% url 'order_create' %}">CREATE ORDER</a>
+{% comment %} <a href="{% url 'order_create' %}">CREATE ORDER</a> {% endcomment %}
 <h1>COMPLETED: {{orders_compl}}</h1>
 <h1>PENDING: {{orders_incompl}}</h1>
 <div class="container">

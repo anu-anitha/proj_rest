@@ -55,5 +55,6 @@ class OrderItem(models.Model):
     prepared_by=models.ForeignKey(Chef, on_delete=models.SET_NULL, null=True, blank=True,)
     status=models.CharField(max_length=20, choices=allocation_choices, default='incomplete')
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True,)
+    todayorders = models.DateTimeField(auto_now=True)
     def __str__(self):
     	return self.description
