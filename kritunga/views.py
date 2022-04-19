@@ -5,6 +5,10 @@ from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 # Create your views here.
 from datetime import datetime, timedelta, time
+# import pandas as pd
+# import calendar
+# from calendar import HTMLCalendar
+from django.db.models import Count, Sum
 
 
 def chef_create(request):
@@ -49,7 +53,10 @@ def chef_delete(request, id):
 
 
 def chef_data(request):
+    today = datetime.now().date() 
     dynamicdata = Chef.objects.all()
+    compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
+    incom = OrderItem.objects.filter(status='incomplete',todayorders__gte =today).count()
     context = {'dynamic': dynamicdata}
     return render(request, 'chef_data.html', context)
 
@@ -104,11 +111,68 @@ def order_create(request):  # When user clicks on create order this fuciton will
     return render(request, 'order_create.html', context)
 
 
+# def order_view(request, year= datetime.now().year, month= datetime.now().strftime('%B')):
+    
+    # dynamicdata = OrderItem.objects.filter(todayorders__gte=today, todayorders__lte=today)
+
+    # start = todayorders(2012, 12, 11)
+    # end =  todayorders(2012, 4, 30)
+    # new_end = end + datetime.timedelta(days=1)
+
+    # dynamicdata = OrderItem.objects.filter( todayorders =[start, new_end])
+    # start=datetime(2021, 4, 30)
+    # end=datetime(2022,4,30) 
+
+    # dynamicdata = OrderItem.objects.filter(todayorders=[start_date,end_date]) 
+    # dynamicdata = OrderItem.objects.filter(pd.date_range(start= '2021, 4, 30', end='2022,4,30'))
+    # order_list = OrderItem.objects.filter
+    # if request.method == 'POST':
+    #     search = request.POST['search_order']
+    #     today = datetime.now()
+    #     current_year= today.year
+
+    #     dynamicdata= OrderItem.objects.filter(todayorders__year  = year)
+
+    #     return redirect(request, 'order_view.html', context= {'dynamic': dynamicdata})
+    # month = month.capitalize()
+    # month_number= 12
+    # month_number = list(calendar.month_number).index(month)
+    # month_number = int(month_number)
+
+    # cal = HTMLCalendar().formatmonth(year, month_number)
+    # today = datetime.now()
+    # current_year= today.year
+    # dynamicdata= OrderItem.objects.filter(todayorders__year  = year , 
+    #                                         todayorders__month= month_number) 
+
+    # time = now.strftime( '%I:%M  %p')
+    # return redirect(request, 'order_view.html', context= {'dynamic': dynamicdata})
+       
+    
 def order_view(request):
-    today = datetime.now().date()
-    dynamicdata = OrderItem.objects.filter(todayorders__gte=today)
-    context = {'dynamic': dynamicdata}
-    return render(request, 'order_view.html', context)
+    today = datetime.now().date() 
+    compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
+    incompl = OrderItem.objects.filter(status='incomplete',todayorders__gte =today).count()
+    dynamicdata= OrderItem.objects.filter(todayorders__gte= today)
+    
+    # ddata= OrderItem.objects.filter(sum(price = today))
+
+    # data = sum(int(ddata))
+
+    # print(data)
+    
+    if request.method == 'POST':
+        fromdate= request.POST.get('fromdate')
+        print('fromdata',fromdate)
+        todate =  request.POST.get('todate')
+        print('todata',todate)
+        #search = OrderItem.objects.raw('select id,category_name_id, product_name_id, quantity,price,description,created_at,allocation,table_no, prepared_by_id,status, customer_id,todayorders from kritunga_orderitem where created_at between  "'+fromdate+'"  and "'+todate+'" ')
+        search = OrderItem.objects.filter(created_at__range=[fromdate,todate])
+        return render(request, 'order_view.html', context= {'dynamic' : search})
+    
+        
+    return render(request, 'order_view.html', context= {'dynamic': dynamicdata, 'compl': compl, 'incompl': incompl})
+
 
 
 def order_read(request, id):
@@ -150,27 +214,32 @@ def order_delete(request, id):
 def chef_orders(request, id):
     chefdata = Chef.objects.get(id=id)
     today = datetime.now().date()
-    dynamicdata = OrderItem.objects.filter(
-        prepared_by=chefdata, todayorders__gte=today)
-    orders_compl = OrderItem.objects.filter(status="complete").count()
-    orders_incompl = OrderItem.objects.filter(status="incomplete").count()
-    print(orders_compl)
-    context = {'dynamic': dynamicdata, 'orders_compl': orders_compl,
-               'orders_incompl': orders_incompl}
+    dynamicdata = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today)
+    compl = OrderItem.objects.filter(prepared_by=chefdata,status="complete", todayorders__gte=today).count()
+    incompl = OrderItem.objects.filter(prepared_by=chefdata, status="incomplete", todayorders__gte=today).count()
+    print(compl)
+    print(incompl)
+
+    # print(orders_compl)
+    context = {'dynamic': dynamicdata, 'compl': compl,
+               'incompl': incompl}
     return render(request, 'order_view.html', context)
 
 
 def table_orders(request):
     if request.method == 'POST':
         search = request.POST['search']
-        table = OrderItem.objects.filter(table_no=search)
+        today = datetime.now().date() 
+    
+        table = OrderItem.objects.filter(table_no=search,todayorders__gte=today)
         # print(table)
         # for i in table:
         # 	print(i.product_name)
         compl = OrderItem.objects.filter(
-            status='complete', table_no=search).count()
+            status='complete', table_no=search, todayorders__gte=today).count()
         incom = OrderItem.objects.filter(
-            status='incomplete', table_no=search).count()
+            status='incomplete', table_no=search, todayorders__gte=today).count()
+        
 
         return render(request, 'table_order.html', context={'table': table, 'compl': compl, 'incom': incom})
     return render(request, 'table_order.html')

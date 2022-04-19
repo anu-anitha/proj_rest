@@ -8,15 +8,15 @@
 
 {% block content %}
 
-
+<center>
 <form class="add_your_class" method="POST" action="" >
 	{% csrf_token %}
     <input class="add_your_class" type="search" name="search"> 
     <button class="add_your_class" type="submit"> Search </button>
 </form>
 
- <h2> completed : {{compl}} <br>
-  incompleted : {{incom}}</h2>
+ <h2> completed : {{compl}}  <br>
+  incompleted : {{incom}}  </h2>
 
 <div class="container">
   <table class="table">
@@ -61,6 +61,8 @@
     </tbody>
   </table>
 </div>
+</center>
+
 
 
 {% endblock content %}

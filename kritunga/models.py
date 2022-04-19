@@ -56,5 +56,7 @@ class OrderItem(models.Model):
     status=models.CharField(max_length=20, choices=allocation_choices, default='incomplete')
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True,)
     todayorders = models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table= "kritunga_orderitem"
     def __str__(self):
     	return self.description

@@ -4,8 +4,44 @@
 
 {% block content %}
 {% comment %} <a href="{% url 'order_create' %}">CREATE ORDER</a> {% endcomment %}
-<h1>COMPLETED: {{orders_compl}}</h1>
-<h1>PENDING: {{orders_incompl}}</h1>
+
+<center>  
+<form method="POST"> 
+  {% csrf_token %} 
+
+  From : <input type='date' name= 'fromdate'/>
+
+  To:<input type='date' name='todate'/>
+  <input type='submit' value='Search'/>
+<!-- <form class="add_your_class" method="POST" action="" >
+  {% csrf_token %}
+    <input class="add_your_class" type="search" name="search_order"> 
+    <button class="add_your_class" type="submit"> Search </button>
+</form> -->
+</center>
+<h1>COMPLETED: {{compl}}</h1>
+<h1>PENDING: {{incompl}}</h1>
+
+<script>
+  $(document).ready(function()
+  {
+    var price;
+    var totalprice=0;
+    $('td:nth-child(5)').each(function()
+    {
+      price=$(this).html();
+      totalprice+=parseInt(price);
+      $('#totalprice').text(totalprice);
+    });
+
+
+  });
+
+
+
+
+</script>
+
 <div class="container">
   <table class="table">
     <thead>
@@ -46,8 +82,17 @@
       </tr>
       {% endfor %}
 
+      <tr class="danger" style="text-align: center;"> 
+        <td colspan='4'>Total</td>
+        <td id="totalprice" style= "font-weight: bold;"></td>
+
+      </tr>
+
+
+
     </tbody>
   </table>
+</form>
 </div>
 
 
