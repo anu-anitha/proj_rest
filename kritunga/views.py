@@ -254,11 +254,11 @@ def chef_orders(request, id):
     dynamicdata = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today)
     compl = OrderItem.objects.filter(prepared_by=chefdata,status="complete", todayorders__gte=today).count()
     incompl = OrderItem.objects.filter(prepared_by=chefdata, status="incomplete", todayorders__gte=today).count()
-    dy = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today).aggregate(dy=Sum('price'))
+    # dy = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today).aggregate(dy=Sum('price'))
 
     # print(orders_compl)
     context = {'dynamic': dynamicdata, 'compl': compl,
-               'incompl': incompl, 'd':dy}
+               'incompl': incompl}
     return render(request, 'chef_order_view.html', context)
 
 
