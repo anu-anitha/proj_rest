@@ -9,7 +9,49 @@ from datetime import datetime, timedelta, time
 # import calendar
 # from calendar import HTMLCalendar
 from django.db.models import Count, Sum
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
+
+
+
+
+@login_required(login_url='login')
+def chef_view(request):
+    dynamicdata = Chef.objects.all()
+    context = {'dynamic': dynamicdata}
+    return render(request, 'chef_view.html', context)
+
+
+def signup(request):
+	form = SignupForm()
+	if request.method == 'POST':#TRUE
+		print(request.POST)
+		form = SignupForm(request.POST)
+		if form.is_valid():
+			# breakpoint()
+			form.save()
+	context = {'form':form}
+	return render(request, 'signup.html', context)
+
+
+def loginn(request):
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+		user = authenticate(request,username = username,password = password)
+		if user is not None:
+			login(request,user)
+			if request.user.is_authenticated:
+				username = request.user.username
+				messages.info(request, "Welcome "+username)
+			return redirect('/')
+	return render(request, 'login.html')
+
+
+def logoutt(request):#get
+	logout(request)
+	return redirect('/')
 
 def chef_create(request):
     form = ChefForm()
@@ -22,10 +64,6 @@ def chef_create(request):
     return render(request, 'chef_create.html', context)
 
 
-def chef_view(request):
-    dynamicdata = Chef.objects.all()
-    context = {'dynamic': dynamicdata}
-    return render(request, 'chef_view.html', context)
 
 
 def chef_read(request, id):
@@ -154,12 +192,10 @@ def order_view(request):
     compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
     incompl = OrderItem.objects.filter(status='incomplete',todayorders__gte =today).count()
     dynamicdata= OrderItem.objects.filter(todayorders__gte= today)
+    dy = OrderItem.objects.filter(todayorders__gte  =today).aggregate(dy=Sum('price'))
     
     # ddata= OrderItem.objects.filter(sum(price = today))
 
-    # data = sum(int(ddata))
-
-    # print(data)
     
     if request.method == 'POST':
         fromdate= request.POST.get('fromdate')
@@ -168,10 +204,11 @@ def order_view(request):
         print('todata',todate)
         #search = OrderItem.objects.raw('select id,category_name_id, product_name_id, quantity,price,description,created_at,allocation,table_no, prepared_by_id,status, customer_id,todayorders from kritunga_orderitem where created_at between  "'+fromdate+'"  and "'+todate+'" ')
         search = OrderItem.objects.filter(created_at__range=[fromdate,todate])
-        return render(request, 'order_view.html', context= {'dynamic' : search})
+        dy = OrderItem.objects.filter(created_at__range=[fromdate,todate]).aggregate(dy=Sum('price'))
+
+        return render(request, 'order_view.html', context= {'dynamic' : search, 'd':dy})
     
-        
-    return render(request, 'order_view.html', context= {'dynamic': dynamicdata, 'compl': compl, 'incompl': incompl})
+    return render(request, 'order_view.html', context={'dynamic': dynamicdata, 'compl': compl, 'incompl': incompl, 'd': dy})
 
 
 
@@ -217,13 +254,12 @@ def chef_orders(request, id):
     dynamicdata = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today)
     compl = OrderItem.objects.filter(prepared_by=chefdata,status="complete", todayorders__gte=today).count()
     incompl = OrderItem.objects.filter(prepared_by=chefdata, status="incomplete", todayorders__gte=today).count()
-    print(compl)
-    print(incompl)
+    dy = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today).aggregate(dy=Sum('price'))
 
     # print(orders_compl)
     context = {'dynamic': dynamicdata, 'compl': compl,
-               'incompl': incompl}
-    return render(request, 'order_view.html', context)
+               'incompl': incompl, 'd':dy}
+    return render(request, 'chef_order_view.html', context)
 
 
 def table_orders(request):

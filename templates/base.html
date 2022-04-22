@@ -15,6 +15,11 @@
 
 
 </head>
+{% comment %} <style>
+        .navbar-nav {
+            margin-left: auto;
+        }
+    </style> {% endcomment %}
 <body>
 
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -39,16 +44,54 @@
         <a class="nav-link " href="{% url 'chef_create' %}">NEW_CHEF</a>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link " href="{% url 'chef_data' %}">AVIL_CHEF</a>
-      </li> 
 
 
-      <li class="nav-item">
-        <a class="nav-link " href="{% url 'table' %}">Table orders</a>
-      </li>
+
 
     </ul>
+
+
+      <ul class="navbar-nav ml-auto">
+ 
+
+	      {% if user.is_authenticated %}
+
+	      <li class="nav-item" style='display:none;'>
+          <a class="nav-link" href="{% url 'chef_view' %}">
+            <span class="glyphicon glyphicon-user"></span> Sign Up
+          </a>
+        </li>
+  
+	      {% else %}
+	      <li><a  class="nav-link" href="{% url 'chef_view' %}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+
+	      {% endif %}
+
+    
+
+
+         
+	      {% if user.is_authenticated %}
+	      	<li class="nav-item"><a class="nav-link" href="#"><span class="glyphicon glyphicon-log-in"></span> {{ user.get_username }}</a></li>
+	      {% else %}
+	      	<li><a class="nav-link" href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+	      {% endif %}
+
+	     
+
+   <li class="nav-item">
+     <a class="nav-link" href="{% url 'logout' %}">
+       <span class="glyphicon glyphicon-log-in">
+
+       </span> Logout</a>
+      </li>
+  
+
+
+  
+</ul>
+ 
+	    </ul>
   </div>
 </nav>
 
