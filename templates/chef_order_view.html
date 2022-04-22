@@ -4,6 +4,11 @@
 
 {% block content %}
 {% comment %} <a href="{% url 'order_create' %}">CREATE ORDER</a> {% endcomment %}
+
+<center>
+<h1>COMPLETED: {{compl}}</h1>
+<h1>PENDING: {{incompl}}</h1>
+</center>
 <div class="container">
   <table class="table">
     <thead>
