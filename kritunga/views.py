@@ -11,6 +11,9 @@ from datetime import datetime, timedelta, time
 from django.db.models import Count, Sum
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from .decorators import allowed_users, unauthenticated_user
+
 
 
 
@@ -34,7 +37,7 @@ def signup(request):
 	context = {'form':form}
 	return render(request, 'signup.html', context)
 
-
+@unauthenticated_user
 def loginn(request):
 	if request.method == 'POST':
 		username = request.POST.get('username')
@@ -53,6 +56,7 @@ def logoutt(request):#get
 	logout(request)
 	return redirect('/')
 
+@allowed_users(allowed_roles=['admin'])
 def chef_create(request):
     form = ChefForm()
     if request.method == 'POST':
@@ -65,13 +69,13 @@ def chef_create(request):
 
 
 
-
+@allowed_users(allowed_roles=['admin'])
 def chef_read(request, id):
     dynamicdata = Chef.objects.get(pk=id)
     context = {'dynamic': dynamicdata}
     return render(request, 'chef_read.html', context)
 
-
+@allowed_users(allowed_roles=['admin'])
 def chef_update(request, id):
     z = Chef.objects.get(pk=id)
     form = ChefForm(instance=z)  # old data
@@ -83,13 +87,13 @@ def chef_update(request, id):
     context = {'form': form}
     return render(request, 'chef_update.html', context)
 
-
+@allowed_users(allowed_roles=['admin'])
 def chef_delete(request, id):
     Chef.objects.get(pk=id).delete()
     messages.info(request, "data deleted")
     return render(request, 'chef_delete.html')
 
-
+@allowed_users(allowed_roles=['admin'])
 def chef_data(request):
     today = datetime.now().date() 
     dynamicdata = Chef.objects.all()
@@ -100,6 +104,7 @@ def chef_data(request):
 
 
 # order Views
+@allowed_users(allowed_roles=['admin'])
 def order_create(request):  # When user clicks on create order this fuciton will trigger
     form = OrderItemForm()  # first render empty form || return render(request, 'order_create.html', context) || this code will take the form variable from here and it will render the empty form
     # when user clicks the submit button after filling the order details this line will get execute, if this IF condition stisfies we will enter in to the loop.
@@ -186,7 +191,7 @@ def order_create(request):  # When user clicks on create order this fuciton will
     # time = now.strftime( '%I:%M  %p')
     # return redirect(request, 'order_view.html', context= {'dynamic': dynamicdata})
        
-    
+@allowed_users(allowed_roles=['admin'])  
 def order_view(request):
     today = datetime.now().date() 
     compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
@@ -211,13 +216,13 @@ def order_view(request):
     return render(request, 'order_view.html', context={'dynamic': dynamicdata, 'compl': compl, 'incompl': incompl, 'd': dy})
 
 
-
+@allowed_users(allowed_roles=['admin'])
 def order_read(request, id):
     dynamicdata = OrderItem.objects.get(pk=id)
     context = {'dynamic': dynamicdata}
     return render(request, 'order_read.html', context)
 
-
+@allowed_users(allowed_roles=['admin'])
 def order_update(request, id):
     z = OrderItem.objects.get(pk=id)
     form = OrderItemForm(instance=z)  # old data
@@ -229,7 +234,7 @@ def order_update(request, id):
     context = {'form': form}
     return render(request, 'order_update.html', context)
 
-
+@allowed_users(allowed_roles=['admin'])
 def order_completed(request, id):
     OrderItem.objects.filter(pk=id).update(status='complete')
     chef_who_compltd_order = OrderItem.objects.filter(
@@ -241,7 +246,7 @@ def order_completed(request, id):
     messages.info(request, "Order completed")
     return redirect('order_view')
 
-
+@allowed_users(allowed_roles=['admin'])
 def order_delete(request, id):
     OrderItem.objects.get(pk=id).delete()
     messages.info(request, "data deleted")
@@ -261,7 +266,7 @@ def chef_orders(request, id):
                'incompl': incompl}
     return render(request, 'chef_order_view.html', context)
 
-
+@allowed_users(allowed_roles=['admin'])
 def table_orders(request):
     if request.method == 'POST':
         search = request.POST['search']
