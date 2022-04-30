@@ -1,4 +1,6 @@
+from unicodedata import category
 from django.shortcuts import render, redirect
+from urllib3 import HTTPResponse
 from .models import *
 from .forms import *
 from django.contrib import messages
@@ -11,12 +13,8 @@ from datetime import datetime, timedelta, time
 from django.db.models import Count, Sum
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from .decorators import allowed_users, unauthenticated_user
 
-
-
-
+cart = []
 
 
 @login_required(login_url='login')
@@ -26,37 +24,130 @@ def chef_view(request):
     return render(request, 'chef_view.html', context)
 
 
+def menu_all(request):
+    dynamicdata = Products.objects.all()
+    context = {'dynamic': dynamicdata}
+    return render(request, 'menu.html', context)
+
+
+def biryani_all(request):
+
+    var1 = Category.objects.get(category_name='biryani')
+    print(var1)
+    var2 = Products.objects.filter(
+        category=var1.id)
+    print(var2)
+
+    # var2 = Products.objects.filter(
+    #     product_name=var1)
+    # print(var2)
+
+    # data = Products.objects.all()
+    # dynamicdata = Products.objects.filter(product_name=data)
+    context = {'dy': var2}
+    return render(request, 'biryani.html', context)
+
+
+def ice(request):
+    var1 = Category.objects.get(category_name='icecreams')
+
+    var2 = Products.objects.filter(
+        category=var1.id)
+    print(var2)
+    return render(request, 'ice.html', context={'dy': var2})
+
+
+def noodles_all(request):
+    var1 = Category.objects.get(category_name='noodles')
+
+    var2 = Products.objects.filter(
+        category=var1.id)
+
+    return render(request, 'noodles.html', context={'dy': var2})
+
+
+def add_to_cart(request, id):
+    dynamicdata = Products.objects.all()
+
+    var = Products.objects.get(pk=id)
+    cart = Cart.objects.create(items=var)
+    print(cart)
+
+    # cart.append(var)
+    # cartcount = len(cart)     #ajax
+
+    return render(request, 'menu.html', context={'dynamic': dynamicdata, 'count':  cart})
+
+
+cart = []
+cartitems = []
+
+
+def cart_list(request):
+    cart_items = Cart.objects.all()
+    for i in cart_items:
+        products = Products.objects.filter(product_name=i.items)
+        cart.append(products)
+        cartitems.append(i)
+    print(cart)
+    # for j in cart:
+    #     print(j.product_name)
+    # print(products)
+    context = {'cart': cart, 'cartitems': cartitems}
+    return render(request, 'cartlist.html', context)
+
+    # t_id = request.session['category_id']
+    # if id:
+    #     var = Products.objects.get(id=t_id)
+    # else:
+
+    # items = Products.objects.filter(product_name=cart)
+
+    # if cartcount == 0:
+    #     cartcount += 1
+    # elif cartcount != 0:
+    #     cartcount -= 1
+    # else:
+    #     pass
+
+
+def cartlist_del(request, i):
+    productname = Products.objects.get(pk=i)
+    Cart.objects.get(pk=productname).delete()
+    return redirect('/cartlist')
+
+
 def signup(request):
-	form = SignupForm()
-	if request.method == 'POST':#TRUE
-		print(request.POST)
-		form = SignupForm(request.POST)
-		if form.is_valid():
-			# breakpoint()
-			form.save()
-	context = {'form':form}
-	return render(request, 'signup.html', context)
+    form = SignupForm()
+    if request.method == 'POST':  # TRUE
+        print(request.POST)
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # breakpoint()
+            form.save()
+    context = {'form': form}
+    return render(request, 'signup.html', context)
 
-@unauthenticated_user
+
 def loginn(request):
-	if request.method == 'POST':
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-		user = authenticate(request,username = username,password = password)
-		if user is not None:
-			login(request,user)
-			if request.user.is_authenticated:
-				username = request.user.username
-				messages.info(request, "Welcome "+username)
-			return redirect('/')
-	return render(request, 'login.html')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if request.user.is_authenticated:
+                username = request.user.username
+                messages.info(request, "Welcome "+username)
+            return redirect('/')
+    return render(request, 'login.html')
 
 
-def logoutt(request):#get
-	logout(request)
-	return redirect('/')
+def logoutt(request):  # get
+    logout(request)
+    return redirect('/')
 
-@allowed_users(allowed_roles=['admin'])
+
 def chef_create(request):
     form = ChefForm()
     if request.method == 'POST':
@@ -68,14 +159,12 @@ def chef_create(request):
     return render(request, 'chef_create.html', context)
 
 
-
-@allowed_users(allowed_roles=['admin'])
 def chef_read(request, id):
     dynamicdata = Chef.objects.get(pk=id)
     context = {'dynamic': dynamicdata}
     return render(request, 'chef_read.html', context)
 
-@allowed_users(allowed_roles=['admin'])
+
 def chef_update(request, id):
     z = Chef.objects.get(pk=id)
     form = ChefForm(instance=z)  # old data
@@ -87,24 +176,25 @@ def chef_update(request, id):
     context = {'form': form}
     return render(request, 'chef_update.html', context)
 
-@allowed_users(allowed_roles=['admin'])
+
 def chef_delete(request, id):
     Chef.objects.get(pk=id).delete()
     messages.info(request, "data deleted")
     return render(request, 'chef_delete.html')
 
-@allowed_users(allowed_roles=['admin'])
+
 def chef_data(request):
-    today = datetime.now().date() 
+    today = datetime.now().date()
     dynamicdata = Chef.objects.all()
-    compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
-    incom = OrderItem.objects.filter(status='incomplete',todayorders__gte =today).count()
+    compl = OrderItem.objects.filter(
+        status='complete', todayorders__gte=today).count()
+    incom = OrderItem.objects.filter(
+        status='incomplete', todayorders__gte=today).count()
     context = {'dynamic': dynamicdata}
     return render(request, 'chef_data.html', context)
 
 
 # order Views
-@allowed_users(allowed_roles=['admin'])
 def order_create(request):  # When user clicks on create order this fuciton will trigger
     form = OrderItemForm()  # first render empty form || return render(request, 'order_create.html', context) || this code will take the form variable from here and it will render the empty form
     # when user clicks the submit button after filling the order details this line will get execute, if this IF condition stisfies we will enter in to the loop.
@@ -155,7 +245,7 @@ def order_create(request):  # When user clicks on create order this fuciton will
 
 
 # def order_view(request, year= datetime.now().year, month= datetime.now().strftime('%B')):
-    
+
     # dynamicdata = OrderItem.objects.filter(todayorders__gte=today, todayorders__lte=today)
 
     # start = todayorders(2012, 12, 11)
@@ -164,9 +254,9 @@ def order_create(request):  # When user clicks on create order this fuciton will
 
     # dynamicdata = OrderItem.objects.filter( todayorders =[start, new_end])
     # start=datetime(2021, 4, 30)
-    # end=datetime(2022,4,30) 
+    # end=datetime(2022,4,30)
 
-    # dynamicdata = OrderItem.objects.filter(todayorders=[start_date,end_date]) 
+    # dynamicdata = OrderItem.objects.filter(todayorders=[start_date,end_date])
     # dynamicdata = OrderItem.objects.filter(pd.date_range(start= '2021, 4, 30', end='2022,4,30'))
     # order_list = OrderItem.objects.filter
     # if request.method == 'POST':
@@ -185,44 +275,46 @@ def order_create(request):  # When user clicks on create order this fuciton will
     # cal = HTMLCalendar().formatmonth(year, month_number)
     # today = datetime.now()
     # current_year= today.year
-    # dynamicdata= OrderItem.objects.filter(todayorders__year  = year , 
-    #                                         todayorders__month= month_number) 
+    # dynamicdata= OrderItem.objects.filter(todayorders__year  = year ,
+    #                                         todayorders__month= month_number)
 
     # time = now.strftime( '%I:%M  %p')
     # return redirect(request, 'order_view.html', context= {'dynamic': dynamicdata})
-       
-@allowed_users(allowed_roles=['admin'])  
+
+
 def order_view(request):
-    today = datetime.now().date() 
-    compl = OrderItem.objects.filter(status='complete', todayorders__gte  =today).count()
-    incompl = OrderItem.objects.filter(status='incomplete',todayorders__gte =today).count()
-    dynamicdata= OrderItem.objects.filter(todayorders__gte= today)
-    dy = OrderItem.objects.filter(todayorders__gte  =today).aggregate(dy=Sum('price'))
-    
+    today = datetime.now().date()
+    compl = OrderItem.objects.filter(
+        status='complete', todayorders__gte=today).count()
+    incompl = OrderItem.objects.filter(
+        status='incomplete', todayorders__gte=today).count()
+    dynamicdata = OrderItem.objects.filter(todayorders__gte=today)
+    dy = OrderItem.objects.filter(
+        todayorders__gte=today).aggregate(dy=Sum('price'))
+
     # ddata= OrderItem.objects.filter(sum(price = today))
 
-    
     if request.method == 'POST':
-        fromdate= request.POST.get('fromdate')
-        print('fromdata',fromdate)
-        todate =  request.POST.get('todate')
-        print('todata',todate)
+        fromdate = request.POST.get('fromdate')
+        print('fromdata', fromdate)
+        todate = request.POST.get('todate')
+        print('todata', todate)
         #search = OrderItem.objects.raw('select id,category_name_id, product_name_id, quantity,price,description,created_at,allocation,table_no, prepared_by_id,status, customer_id,todayorders from kritunga_orderitem where created_at between  "'+fromdate+'"  and "'+todate+'" ')
-        search = OrderItem.objects.filter(created_at__range=[fromdate,todate])
-        dy = OrderItem.objects.filter(created_at__range=[fromdate,todate]).aggregate(dy=Sum('price'))
+        search = OrderItem.objects.filter(created_at__range=[fromdate, todate])
+        dy = OrderItem.objects.filter(
+            created_at__range=[fromdate, todate]).aggregate(dy=Sum('price'))
 
-        return render(request, 'order_view.html', context= {'dynamic' : search, 'd':dy})
-    
+        return render(request, 'order_view.html', context={'dynamic': search, 'd': dy})
+
     return render(request, 'order_view.html', context={'dynamic': dynamicdata, 'compl': compl, 'incompl': incompl, 'd': dy})
 
 
-@allowed_users(allowed_roles=['admin'])
 def order_read(request, id):
     dynamicdata = OrderItem.objects.get(pk=id)
     context = {'dynamic': dynamicdata}
     return render(request, 'order_read.html', context)
 
-@allowed_users(allowed_roles=['admin'])
+
 def order_update(request, id):
     z = OrderItem.objects.get(pk=id)
     form = OrderItemForm(instance=z)  # old data
@@ -234,7 +326,7 @@ def order_update(request, id):
     context = {'form': form}
     return render(request, 'order_update.html', context)
 
-@allowed_users(allowed_roles=['admin'])
+
 def order_completed(request, id):
     OrderItem.objects.filter(pk=id).update(status='complete')
     chef_who_compltd_order = OrderItem.objects.filter(
@@ -246,7 +338,7 @@ def order_completed(request, id):
     messages.info(request, "Order completed")
     return redirect('order_view')
 
-@allowed_users(allowed_roles=['admin'])
+
 def order_delete(request, id):
     OrderItem.objects.get(pk=id).delete()
     messages.info(request, "data deleted")
@@ -256,9 +348,12 @@ def order_delete(request, id):
 def chef_orders(request, id):
     chefdata = Chef.objects.get(id=id)
     today = datetime.now().date()
-    dynamicdata = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today)
-    compl = OrderItem.objects.filter(prepared_by=chefdata,status="complete", todayorders__gte=today).count()
-    incompl = OrderItem.objects.filter(prepared_by=chefdata, status="incomplete", todayorders__gte=today).count()
+    dynamicdata = OrderItem.objects.filter(
+        prepared_by=chefdata, todayorders__gte=today)
+    compl = OrderItem.objects.filter(
+        prepared_by=chefdata, status="complete", todayorders__gte=today).count()
+    incompl = OrderItem.objects.filter(
+        prepared_by=chefdata, status="incomplete", todayorders__gte=today).count()
     # dy = OrderItem.objects.filter(prepared_by=chefdata, todayorders__gte=today).aggregate(dy=Sum('price'))
 
     # print(orders_compl)
@@ -266,13 +361,14 @@ def chef_orders(request, id):
                'incompl': incompl}
     return render(request, 'chef_order_view.html', context)
 
-@allowed_users(allowed_roles=['admin'])
+
 def table_orders(request):
     if request.method == 'POST':
         search = request.POST['search']
-        today = datetime.now().date() 
-    
-        table = OrderItem.objects.filter(table_no=search,todayorders__gte=today)
+        today = datetime.now().date()
+
+        table = OrderItem.objects.filter(
+            table_no=search, todayorders__gte=today)
         # print(table)
         # for i in table:
         # 	print(i.product_name)
@@ -280,7 +376,6 @@ def table_orders(request):
             status='complete', table_no=search, todayorders__gte=today).count()
         incom = OrderItem.objects.filter(
             status='incomplete', table_no=search, todayorders__gte=today).count()
-        
 
         return render(request, 'table_order.html', context={'table': table, 'compl': compl, 'incom': incom})
     return render(request, 'table_order.html')
