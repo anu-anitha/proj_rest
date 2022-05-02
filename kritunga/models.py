@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -87,4 +88,5 @@ class OrderItem(models.Model):
 class Cart(models.Model):
     items = models.ForeignKey(
         Products,  on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
    
