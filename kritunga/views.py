@@ -77,9 +77,9 @@ def order_create(request):  # When user clicks on create order this fuciton will
             geting_prepared = OrderItem.objects.filter(
                 status='incomplete', product_name=get_product)
             print('+++++++++++++',geting_prepared)
+            chef_dict = {}  # define an empty dict, this dict will have the {chef:orders_completed}
             # if you get the list of chefs who are working on the same category, then enter in to the loop.
             if geting_prepared:
-                chef_dict = {}  # define an empty dict, this dict will have the {chef:orders_completed}
                 # breakpoint()
                 # iterate over the list of chefs(Querysets).
                 for i in geting_prepared:
@@ -113,6 +113,12 @@ def order_create(request):  # When user clicks on create order this fuciton will
                 #chef_cat = Category.objects.get(category_name = get_category)
                 #print(chef_cat)
                 get_chef = Chef.objects.filter(category_name=get_category).exclude(chef_name__in = final_list).first()
+                if get_chef is None:
+                    carteg_filt = Chef.objects.filter(category_name=get_category)
+                    for i in carteg_filt:
+                        chef_dict[i.chef_name] = i.orders_completed
+                chef_final = min(chef_dict, key=chef_dict.get)
+                get_chef = Chef.objects.get(chef_name=chef_final)
                 obj = form.save(commit=False)  # instace: hold before you save.
                 # before you save the customer order in database, assign a chef who is idle.
                 obj.prepared_by = get_chef
