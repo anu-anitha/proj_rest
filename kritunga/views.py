@@ -70,12 +70,13 @@ def order_create(request):  # When user clicks on create order this fuciton will
         form = OrderItemForm(request.POST, request.FILES)
         # Now the request is containing all the data that is entered by the user, out of that data we need only category. this line of code will bring what is the category that user selected.
         get_category = request.POST.get('category_name')
+        get_product = request.POST.get('product_name')
         # if the data entered in the form by user is a valid data, then enter in to the loop.
         if form.is_valid():
             # From the existing orders we have to filter the orders which are incomplete and the category that user selected. this is being done just to get the chef's who are still working on the pirticular category, so that we can assign this order to the chef who is still preparing that category order.
             geting_prepared = OrderItem.objects.filter(
-                status='incomplete', category_name=get_category)
-            # print('+++++++++++++',geting_prepared)
+                status='incomplete', product_name=get_product)
+            print('+++++++++++++',geting_prepared)
             # if you get the list of chefs who are working on the same category, then enter in to the loop.
             if geting_prepared:
                 chef_dict = {}  # define an empty dict, this dict will have the {chef:orders_completed}
@@ -98,9 +99,20 @@ def order_create(request):  # When user clicks on create order this fuciton will
                 obj = form.save(commit=False)
                 obj.prepared_by = get_chef
                 obj.save()
-            else:  # if the chef's are idle and not preparing any orders in line. all the existing orders are completed, if new order is comming up then assign the order to any available chef.
-                get_chef = Chef.objects.filter(
-                    chef_availability=1, category_name=get_category).first()
+            else:  # if the chef's are idle and not preparing any orders in line. all the existing orders are completed, if new order is comming up then assign the order to any available chef.                breakpoint()
+                print('+++++++++++ELSE+++++++')
+                #breakpoint()
+                geting_prepared = OrderItem.objects.filter(status='incomplete', category_name=get_category,)
+                list_chefs = []
+                final_list = []
+                for i in geting_prepared:
+                    list_chefs.append(i.prepared_by)
+                print(list_chefs)
+                for i in list_chefs:
+                    final_list.append(i.chef_name)
+                #chef_cat = Category.objects.get(category_name = get_category)
+                #print(chef_cat)
+                get_chef = Chef.objects.filter(category_name=get_category).exclude(chef_name__in = final_list).first()
                 obj = form.save(commit=False)  # instace: hold before you save.
                 # before you save the customer order in database, assign a chef who is idle.
                 obj.prepared_by = get_chef
