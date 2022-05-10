@@ -5,5 +5,14 @@ from kritunga.models import *
 admin.site.register(Category)
 admin.site.register(Chef)
 admin.site.register(Customer)
-admin.site.register(OrderItem)
-admin.site.register(Products)
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product_name', 'description',
+                    'price', 'description', 'category_name']
+
+
+@admin.register(Products)
+class ProductsAdmin(admin.ModelAdmin):
+    list_display = ['product_name', 'description',
+                    'product_price', 'product_image', 'category']
