@@ -113,6 +113,7 @@ def order_create(request):  # When user clicks on create order this fuciton will
                 #chef_cat = Category.objects.get(category_name = get_category)
                 #print(chef_cat)
                 get_chef = Chef.objects.filter(category_name=get_category).exclude(chef_name__in = final_list).first()
+<<<<<<< HEAD
                 print(get_chef,'222222222222222222222')
                 if get_chef is None:
                     carteg_filt = Chef.objects.filter(category_name=get_category)
@@ -122,6 +123,13 @@ def order_create(request):  # When user clicks on create order this fuciton will
                         print(chef_dict,'@@@@@@@@@@@@@@@@')
                 chef_final = min(chef_dict, key=chef_dict.get)
                 print(chef_final, '1111111111111111')
+=======
+                if get_chef is None:
+                    carteg_filt = Chef.objects.filter(category_name=get_category)
+                    for i in carteg_filt:
+                        chef_dict[i.chef_name] = i.orders_completed
+                chef_final = min(chef_dict, key=chef_dict.get)
+>>>>>>> 99d8b8d5e17d3cfce992398ffb9d42cc4f779b4c
                 get_chef = Chef.objects.get(chef_name=chef_final)
                 obj = form.save(commit=False)  # instace: hold before you save.
                 # before you save the customer order in database, assign a chef who is idle.
