@@ -17,14 +17,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from kritunga import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('kritunga.urls')),
-    path('login/', views.loginn, name='login'),
-    path('logout/', views.logoutt, name='logout'),
-    path('signup/', views.signup, name='signup'),
-   
-    
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

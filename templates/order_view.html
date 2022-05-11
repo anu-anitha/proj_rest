@@ -22,7 +22,7 @@
 <h1>COMPLETED: {{compl}}</h1>
 <h1>PENDING: {{incompl}}</h1>
 
-{% comment %} <script>
+<script>
   $(document).ready(function()
   {
     var price;
@@ -40,7 +40,7 @@
 
 
 
-</script> {% endcomment %}
+</script>
 
 <div class="container">
   <table class="table">
@@ -82,21 +82,11 @@
       </tr>
       {% endfor %}
 
-
-      
-  <tr class="danger">
-      <th colspan= '4'>total</th>
-
-
-              <th colspan= '4'>Rs {{ d.dy}}</th>
-
-</tr>
-
-      {% comment %} <tr class="danger" style="text-align: center;"> 
+      <tr class="danger" style="text-align: center;"> 
         <td colspan='4'>Total</td>
         <td id="totalprice" style= "font-weight: bold;"></td>
 
-      </tr> {% endcomment %}
+      </tr>
 
 
 

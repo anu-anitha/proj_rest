@@ -4,20 +4,6 @@ from kritunga import views
 
 urlpatterns = [
     path('', views.chef_view, name='chef_view'),  # chefs fuction url
-
-    path('menu/', views.menu_all, name='menu'),
-
-    path('biryani/', views.biryani_all, name='biryani'),
-
-    path('ice/', views.ice, name='ice'),
-
-    path('noodles/', views.noodles_all, name='noodles'),
-
-    path('addcart/<str:id>', views.add_to_cart, name='addcart'),
-
-    path('cartlist/', views.cart_list, name='cartlist'),
-    path('del/<str:i>/', views.cartlist_del, name='del'),
-
     path('chef_read/<str:id>', views.chef_read, name='chef_read'),
     path('chef_update/<str:id>', views.chef_update, name='chef_update'),
     path('chef_delete/<str:id>', views.chef_delete, name='chef_delete'),
