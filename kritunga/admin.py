@@ -8,7 +8,7 @@ admin.site.register(Customer)
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ['user', 'product_name', 'description',
+    list_display = ['product_name', 'description',
                     'price', 'description', 'category_name']
 
 
