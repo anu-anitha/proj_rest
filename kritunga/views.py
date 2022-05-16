@@ -9,8 +9,20 @@ from datetime import datetime, timedelta, time
 # import calendar
 # from calendar import HTMLCalendar
 from django.db.models import Count, Sum
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from .decorators import allowed_users, unauthenticated_user
 
 
+
+@login_required(login_url='login')
+def chef_view(request):
+    dynamicdata = Chef.objects.all()
+    context = {'dynamic': dynamicdata}
+    return render(request, 'chef_view.html', context)
+
+
+    
 def chef_create(request):
     form = ChefForm()
     if request.method == 'POST':
@@ -22,10 +34,44 @@ def chef_create(request):
     return render(request, 'chef_create.html', context)
 
 
-def chef_view(request):
-    dynamicdata = Chef.objects.all()
-    context = {'dynamic': dynamicdata}
-    return render(request, 'chef_view.html', context)
+
+
+def signup(request):
+    form = SignupForm()
+    if request.method == 'POST':  # TRUE
+        print(request.POST)
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            # breakpoint()
+            form.save()
+    context = {'form': form}
+    return render(request, 'signup.html', context)
+
+
+#@unauthenticated_user
+def loginn(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if request.user.is_authenticated:
+                username = request.user.username
+                messages.info(request, "Welcome "+username)
+                return redirect('/')
+            #else:
+                #messages.error(request, "Invalid Username or Password")
+                #return redirect('/login')
+    return render(request, 'login.html')
+
+
+def logoutt(request):  # get
+    logout(request)
+    return redirect('/')
+
+
+
 
 
 def chef_read(request, id):
@@ -76,7 +122,7 @@ def order_create(request):  # When user clicks on create order this fuciton will
             # From the existing orders we have to filter the orders which are incomplete and the category that user selected. this is being done just to get the chef's who are still working on the pirticular category, so that we can assign this order to the chef who is still preparing that category order.
             geting_prepared = OrderItem.objects.filter(
                 status='incomplete', product_name=get_product)
-            print('+++++++++++++',geting_prepared)
+            #print('+++++++++++++',geting_prepared)
             chef_dict = {}  # define an empty dict, this dict will have the {chef:orders_completed}
             # if you get the list of chefs who are working on the same category, then enter in to the loop.
             if geting_prepared:
@@ -100,36 +146,36 @@ def order_create(request):  # When user clicks on create order this fuciton will
                 obj.prepared_by = get_chef
                 obj.save()
             else:  # if the chef's are idle and not preparing any orders in line. all the existing orders are completed, if new order is comming up then assign the order to any available chef.                breakpoint()
-                print('+++++++++++ELSE+++++++')
+                #print('+++++++++++ELSE+++++++')
                 #breakpoint()
                 geting_prepared = OrderItem.objects.filter(status='incomplete', category_name=get_category,)
                 list_chefs = []
                 final_list = []
                 for i in geting_prepared:
                     list_chefs.append(i.prepared_by)
-                print(list_chefs)
+                #print(list_chefs)
                 for i in list_chefs:
                     final_list.append(i.chef_name)
                 #chef_cat = Category.objects.get(category_name = get_category)
                 #print(chef_cat)
                 get_chef = Chef.objects.filter(category_name=get_category).exclude(chef_name__in = final_list).first()
-<<<<<<< HEAD
-                print(get_chef,'222222222222222222222')
+
+                #print(get_chef,'222222222222222222222')
                 if get_chef is None:
                     carteg_filt = Chef.objects.filter(category_name=get_category)
-                    print(carteg_filt, '!!!!!!!!!!!!!!!!!!')
+                    #print(carteg_filt, '!!!!!!!!!!!!!!!!!!')
                     for i in carteg_filt:
                         chef_dict[i.chef_name] = i.orders_completed
-                        print(chef_dict,'@@@@@@@@@@@@@@@@')
+                        #print(chef_dict,'@@@@@@@@@@@@@@@@')
                 chef_final = min(chef_dict, key=chef_dict.get)
                 print(chef_final, '1111111111111111')
-=======
+
                 if get_chef is None:
                     carteg_filt = Chef.objects.filter(category_name=get_category)
                     for i in carteg_filt:
                         chef_dict[i.chef_name] = i.orders_completed
                 chef_final = min(chef_dict, key=chef_dict.get)
->>>>>>> 99d8b8d5e17d3cfce992398ffb9d42cc4f779b4c
+
                 get_chef = Chef.objects.get(chef_name=chef_final)
                 obj = form.save(commit=False)  # instace: hold before you save.
                 # before you save the customer order in database, assign a chef who is idle.
