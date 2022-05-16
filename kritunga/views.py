@@ -160,11 +160,7 @@ def order_create(request):  # When user clicks on create order this fuciton will
                 #print(chef_cat)
                 get_chef = Chef.objects.filter(category_name=get_category).exclude(chef_name__in = final_list).first()
 
-<<<<<<< HEAD
-                #print(get_chef,'222222222222222222222')
-=======
-                print(get_chef,'222222222222222222222')
->>>>>>> a93f7ba060c8b78a56b2793dab0ef7078b3348a1
+
                 if get_chef is None:
                     carteg_filt = Chef.objects.filter(category_name=get_category)
                     #print(carteg_filt, '!!!!!!!!!!!!!!!!!!')

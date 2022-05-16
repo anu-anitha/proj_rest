@@ -5,9 +5,7 @@ from kritunga.models import *
 admin.site.register(Category)
 
 admin.site.register(Customer)
-<<<<<<< HEAD
 
-=======
 
 @admin.register(Chef)
 class ChefAdmin(admin.ModelAdmin):
@@ -15,7 +13,7 @@ class ChefAdmin(admin.ModelAdmin):
                     'orders_completed', 'description', 'mobile','chef_availability']
 
 
->>>>>>> a93f7ba060c8b78a56b2793dab0ef7078b3348a1
+
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
