@@ -19,7 +19,7 @@ class ChefAdmin(admin.ModelAdmin):
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ['product_name', 'description',
 
-                    'price', 'description', 'category_name']
+                    'price', 'description', 'category_name','prepared_by']
 
 
 @admin.register(Products)
